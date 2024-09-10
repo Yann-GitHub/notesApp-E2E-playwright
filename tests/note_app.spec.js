@@ -1,4 +1,5 @@
 const { test, describe, expect, beforeEach } = require("@playwright/test");
+const { loginWith } = require("./helper");
 
 describe("Note app", () => {
   beforeEach(async ({ page, request }) => {
@@ -21,10 +22,7 @@ describe("Note app", () => {
   });
 
   test("login fails with wrong password", async ({ page }) => {
-    await page.getByRole("button", { name: "log in" }).click();
-    await page.getByRole("textbox").first().fill("admin");
-    await page.getByRole("textbox").last().fill("admin");
-    await page.getByRole("button", { name: "login" }).click();
+    await loginWith(page, "mluukkai", "wrong");
     await expect(page.getByText(/Wrong credentials/)).toBeVisible();
 
     const errorDiv = await page.locator(".toast.toastError");
@@ -38,19 +36,13 @@ describe("Note app", () => {
   });
 
   test("login form can be opened", async ({ page }) => {
-    await page.getByRole("button", { name: "log in" }).click();
-    await page.getByRole("textbox").first().fill("mluukkai");
-    await page.getByRole("textbox").last().fill("salainen");
-    await page.getByRole("button", { name: "login" }).click();
+    await loginWith(page, "mluukkai", "salainen");
     await expect(page.getByText("logged-in")).toBeVisible();
   });
 
   describe("when logged in", () => {
     beforeEach(async ({ page }) => {
-      await page.getByRole("button", { name: "log in" }).click();
-      await page.getByRole("textbox").first().fill("mluukkai");
-      await page.getByRole("textbox").last().fill("salainen");
-      await page.getByRole("button", { name: "login" }).click();
+      await loginWith(page, "mluukkai", "salainen");
     });
 
     test("a new note can be created", async ({ page }) => {
@@ -69,7 +61,10 @@ describe("Note app", () => {
         await page.getByRole("button", { name: "save" }).click();
       });
       test("importance can be changed", async ({ page }) => {
-        await page.getByRole("button", { name: "make important" }).click();
+        await page
+          .getByRole("button", { name: "make important" })
+          .first()
+          .click();
         await expect(page.getByText("make not important")).toBeVisible();
       });
     });
