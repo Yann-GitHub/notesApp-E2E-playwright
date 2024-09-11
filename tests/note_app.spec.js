@@ -54,14 +54,27 @@ describe("Note app", () => {
 
     describe("and a note exists", () => {
       beforeEach(async ({ page }) => {
-        await createNote(page, "another note by playwright");
+        // await createNote(page, "another note by playwright");
+        await createNote(page, "first note");
+        await createNote(page, "second note");
+        await createNote(page, "third note");
       });
       test("importance can be changed", async ({ page }) => {
-        await page
+        // await page
+        //   .getByRole("button", { name: "make important" })
+        //   .first()
+        //   .click();
+        // await expect(page.getByText("make not important")).toBeVisible();
+        await page.pause(); // pause the test for debugging
+        const otherNoteText = await page.getByText("second note");
+        const otherdNoteElement = await otherNoteText.locator("..");
+
+        await otherdNoteElement
           .getByRole("button", { name: "make important" })
-          .first()
           .click();
-        await expect(page.getByText("make not important")).toBeVisible();
+        await expect(
+          otherdNoteElement.getByText("make not important")
+        ).toBeVisible();
       });
     });
   });
